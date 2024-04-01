@@ -1,0 +1,16 @@
+{
+  "name": "c12-employee-tracker",
+  "version": "1.0.0",
+  "description": "Employee Tracker made for class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "enkw",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "inquirer": "^8.2.4",
+    "pg": "^8.11.4"
+  }
+}
