@@ -1,15 +1,6 @@
 const inquirer = require('inquirer');
 const { Pool } = require('pg');
 
-const pool = new Pool(
-    {
-      user: 'postgres',
-      password: 'wackwack',
-      database: 'movies_db'
-    },
-    console.log(`Connected to the employee_db database.`)
-  )
-
 const menu = [
     {
         type: 'list',
@@ -67,9 +58,3 @@ const departQ = [
         message: 'Please enter the name of the new department:'
     }
 ];
-
-// function init() {
-//     inquirer.prompt(menu).then()
-// }
-
-// init();
