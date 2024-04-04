@@ -23,7 +23,10 @@ To use this application, clone/branch the repo. Open the terminal inside the dir
 
 Once the application is running, select your desired option and follow along with the prompts.
 
-I'll also include a link to the repo and a link to a video demo!
+Example of application running:
+![Git Bash showing the menu options and an employee table](./assets/Screenshot-of-application.png)
+
+Or you can [watch a brief video demonstration](https://drive.google.com/file/d/1uqC6zM-MHdlH5eF9y5g3TYYCaYgVt4EH/view)
   
 ## Credits
   
