@@ -8,16 +8,34 @@ const {
     addDepartment
 } = require('./modules/queries');
 
-mainModule() {
+async function mainMenu() {
     console.log('You are now connected to the employee_db database.');
 
     while (true) {
-        const { main } = await inquirer.createPromptModule(menu);
+        const { main } = await inquirer.prompt(menu);
 
         switch (main) {
-            case 'View all Emloyees':
+            case 'View all Employees':
                 await viewAllEmployees();
                 break;
+            case 'Add Employee':
+                await addEmployeePrompt();
+                break;
+            case 'View all Roles':
+                await viewAllRoles();
+                break;
+            case 'Add Role':
+                await addRolePrompt();
+                break;
+            case 'View all Departments':
+                await viewAllDepartments();
+                break;
+            case 'Add Department':
+                await addDepartmentPrompt();
+                break;
+            case 'Quit':
+                console.log('Smell ya l8r, rat fink');
+                return;
         }
     }
 }
@@ -79,3 +97,37 @@ const departQ = [
         message: 'Please enter the name of the new department:'
     }
 ];
+
+async function addEmployeePrompt() {
+    const roleChoices = await viewAllRoles();
+    if (roleChoices.length === 0) {
+        console.log('No roles found. Please add a role first.');
+        return;
+    }
+
+    employeeQ[2].choices = roleChoices.map(role => ({ name: role.title, value: role.id }));
+
+    const answers = await inquirer.prompt(employeeQ);
+    await addEmployee(answers.firstname, answers.lastname, answers.role);
+
+    console.log('Employee added successfully!');
+}
+  
+  async function addRolePrompt() {
+    const departmentChoices = await viewAllDepartments();
+    roleQ[0].choices = departmentChoices.map(department => ({ name: department.name, value: department.id }));
+
+    const answers = await inquirer.prompt(roleQ);
+    await addRole(answers.rolename, answers.salary, answers.departmentlist);
+
+    console.log('Role added successfully!');
+}
+  
+  async function addDepartmentPrompt() {
+    const answers = await inquirer.prompt(departQ);
+    await addDepartment(answers.departmentname);
+  
+    console.log('Department added successfully!');
+  }
+  
+  mainMenu();

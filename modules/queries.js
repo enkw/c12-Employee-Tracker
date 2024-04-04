@@ -5,7 +5,7 @@ const pool = new Pool(
     {
       user: 'postgres',
       password: 'wackwack',
-      database: 'movies_db',
+      database: 'employee_db',
       // Found out this is important even though it's running locally, you still need to specify that
       host: 'localhost',
       port: 5432
