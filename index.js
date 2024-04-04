@@ -1,4 +1,26 @@
 const inquirer = require('inquirer');
+const {
+    viewAllEmployees,
+    addEmployee,
+    viewAllRoles,
+    addRole,
+    viewAllDepartments,
+    addDepartment
+} = require('./modules/queries');
+
+mainModule() {
+    console.log('You are now connected to the employee_db database.');
+
+    while (true) {
+        const { main } = await inquirer.createPromptModule(menu);
+
+        switch (main) {
+            case 'View all Emloyees':
+                await viewAllEmployees();
+                break;
+        }
+    }
+}
 
 const menu = [
     {
@@ -16,20 +38,6 @@ const menu = [
         ]
     }
 ];
-
-mainModule() {
-    console.log('You are now connected to the employee_db database.');
-
-    while (true) {
-        const { main } = await inquirer.createPromptModule(menu);
-
-        switch (main) {
-            case 'View all Emloyees';
-                await viewAllEmployees();
-                break;
-        }
-    }
-}
 
 const employeeQ = [
     {
