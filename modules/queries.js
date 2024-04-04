@@ -63,6 +63,7 @@ async function addDepartment(departmentName) {
 
 // Exports the functions here so they can be used in index.js
 module.exports = {
+    pool,
     viewAllEmployees,
     addEmployee,
     viewAllRoles,

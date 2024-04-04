@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const {
+    pool,
     viewAllEmployees,
     addEmployee,
     viewAllRoles,
@@ -72,7 +73,12 @@ const employeeQ = [
         type: 'list',
         name: 'role',
         message: 'Please select the Employees role:',
-        choices: []
+        choices: async () => {
+            return (await roleChoices()).map(role => ({ name: role.name, value: role.id }));
+        },
+        when(answers) {
+            return answers;
+        }
     }
 ];
 
@@ -81,12 +87,22 @@ const roleQ = [
         type: 'list',
         name: 'departmentlist',
         message: 'Please select the department for this new role:',
-        choices: []
+        choices: async () => {
+            return (await departmentChoices()).map(department => ({ name: department.name, value: department.value }));
+        },
+        when(answers) {
+            return answers;
+        }
     },
     {
         type: 'input',
         name: 'rolename',
         message: 'Please enter the name of this new role:'
+    },
+    {
+        type: 'input',
+        name: 'salary',
+        message: 'Please enter the salary for this new role:'
     }
 ];
 
@@ -99,35 +115,36 @@ const departQ = [
 ];
 
 async function addEmployeePrompt() {
-    const roleChoices = await viewAllRoles();
-    if (roleChoices.length === 0) {
-        console.log('No roles found. Please add a role first.');
-        return;
-    }
-
-    employeeQ[2].choices = roleChoices.map(role => ({ name: role.title, value: role.id }));
-
     const answers = await inquirer.prompt(employeeQ);
     await addEmployee(answers.firstname, answers.lastname, answers.role);
 
-    console.log('Employee added successfully!');
+    console.log('Employee added.');
 }
   
-  async function addRolePrompt() {
-    const departmentChoices = await viewAllDepartments();
-    roleQ[0].choices = departmentChoices.map(department => ({ name: department.name, value: department.id }));
-
+async function addRolePrompt() {
     const answers = await inquirer.prompt(roleQ);
     await addRole(answers.rolename, answers.salary, answers.departmentlist);
 
-    console.log('Role added successfully!');
+    console.log('Role added.');
 }
   
-  async function addDepartmentPrompt() {
+async function addDepartmentPrompt() {
     const answers = await inquirer.prompt(departQ);
     await addDepartment(answers.departmentname);
   
-    console.log('Department added successfully!');
-  }
-  
-  mainMenu();
+    console.log('Department added.');
+}
+
+async function roleChoices() {
+    const roleQuery = `SELECT id, title as name FROM role;`;
+    const role = await pool.query(roleQuery);
+    return role.rows;
+}
+
+async function departmentChoices() {
+    const departmentQuery = `SELECT id AS value, name FROM department;`;
+    const department = await pool.query(departmentQuery);
+    return department.rows;
+}
+
+mainMenu();
