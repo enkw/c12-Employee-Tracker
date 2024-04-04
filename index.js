@@ -22,6 +22,9 @@ async function mainMenu() {
             case 'Add Employee':
                 await addEmployeePrompt();
                 break;
+            case 'Update Employee Role':
+                await updateEmployeePrompt();
+                break;
             case 'View all Roles':
                 await viewAllRoles();
                 break;
@@ -41,6 +44,7 @@ async function mainMenu() {
     }
 }
 
+// Main menu options
 const menu = [
     {
         type: 'list',
@@ -49,6 +53,7 @@ const menu = [
         choices: [
             'View all Employees',
             'Add Employee',
+            'Update Employee Role',
             'View all Roles',
             'Add Role',
             'View all Departments',
@@ -58,6 +63,7 @@ const menu = [
     }
 ];
 
+// Prompts handling adding an employee
 const employeeQ = [
     {
         type: 'input',
@@ -73,6 +79,8 @@ const employeeQ = [
         type: 'list',
         name: 'role',
         message: 'Please select the Employees role:',
+        // Learned how to do work with this portion from https://stackoverflow.com/questions/66626936/inquirer-js-populate-list-choices-from-sql-database
+        // and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
         choices: async () => {
             return (await roleChoices()).map(role => ({ name: role.name, value: role.id }));
         },
@@ -82,6 +90,38 @@ const employeeQ = [
     }
 ];
 
+// Prompts handling updating an employee
+const updateEmployeeQ = [
+    {
+        type: 'list',
+        name: 'employeename',
+        message: 'Please select the employee to update:',
+        choices: async () => {
+            const employees = await empChoices();
+            return employees.map(employee => ({ 
+                name: `${employee.firstname} ${employee.lastname}`, 
+                value: employee.id 
+            }));
+        },
+        when(answers) {
+            return answers;
+        }
+    },
+    {
+        type: 'list',
+        name: 'role',
+        message: 'Please select the Employees new role:',
+        choices: async () => {
+            const roles = await roleChoices();
+            return roles.map(role => ({ name: role.name, value: role.id }));
+        },
+        when(answers) {
+            return answers;
+        }
+    }
+];
+
+// Prompts handling adding a role
 const roleQ = [
     {
         type: 'list',
@@ -106,6 +146,7 @@ const roleQ = [
     }
 ];
 
+// Prompt handling adding a department
 const departQ = [
     {
         type: 'input',
@@ -114,25 +155,55 @@ const departQ = [
     }
 ];
 
+// Heavily referenced https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function and class activities for guidance here
+// Functions that handle the different prompts that add data to the database
 async function addEmployeePrompt() {
     const answers = await inquirer.prompt(employeeQ);
     await addEmployee(answers.firstname, answers.lastname, answers.role);
 
     console.log('Employee added.');
 }
-  
+
+async function updateEmployeePrompt() {
+    const answers = await inquirer.prompt(updateEmployeeQ);
+    await updateEmployeeRole(answers.employeename, answers.role);
+
+    console.log('Employee role updated.');
+}
+
 async function addRolePrompt() {
     const answers = await inquirer.prompt(roleQ);
     await addRole(answers.rolename, answers.salary, answers.departmentlist);
-
+    
     console.log('Role added.');
 }
-  
+
 async function addDepartmentPrompt() {
     const answers = await inquirer.prompt(departQ);
     await addDepartment(answers.departmentname);
-  
+    
     console.log('Department added.');
+}
+
+// This function updates the employee role based on the users selection
+async function updateEmployeeRole(employeeId, roleId) {
+    const updateQuery = `
+        UPDATE employee
+        SET role_id = $1
+        WHERE id = $2
+    `;
+    await pool.query(updateQuery, [roleId, employeeId]);
+}
+
+// All functions handling reading the database to assign data to choices
+async function empChoices() {
+    const employeeQuery = `SELECT id, first_name, last_name FROM employee;`;
+    const employees = await pool.query(employeeQuery);
+    return employees.rows.map(employee => ({
+        id: employee.id,
+        firstname: employee.first_name,
+        lastname: employee.last_name
+    }));
 }
 
 async function roleChoices() {
